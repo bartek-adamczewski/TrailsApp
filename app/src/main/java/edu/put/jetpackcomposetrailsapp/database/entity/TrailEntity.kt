@@ -11,5 +11,6 @@ data class TrailEntity(
     val shortDescription: String = "",
     val longDescription: String = "",
     val walkTime: Int = 0,
-    val imageId: Int = 0
+    val imageId: Int = 0,
+    val recordedTime: Long? = null
 )

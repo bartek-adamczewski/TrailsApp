@@ -7,12 +7,15 @@ import edu.put.jetpackcomposetrailsapp.database.entity.TrailEntity
 import edu.put.jetpackcomposetrailsapp.repository.TrailRepository
 import edu.put.jetpackcomposetrailsapp.composable.list.Trail
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import javax.inject.Inject
 
 @HiltViewModel
@@ -43,6 +46,38 @@ class TrailViewModel @Inject constructor(
                 }
             }
         }
+        handleStopwatch()
+    }
+
+    fun toggleStopwatch() {
+        val currentState = _uiState.value
+        _uiState.value = currentState.copy(isRunning = !currentState.isRunning)
+    }
+
+    fun resetStopwatch() {
+        _uiState.value = _uiState.value.copy(isRunning = false, timeElapsed = 0L)
+    }
+
+    private fun handleStopwatch() {
+        viewModelScope.launch {
+            while (isActive) {
+                if (_uiState.value.isRunning) {
+                    delay(1000)
+                    _uiState.update { currentState ->
+                        currentState.copy(timeElapsed = currentState.timeElapsed + 1)
+                    }
+                }
+                yield()
+            }
+        }
+    }
+
+    fun saveRecordedTimeForTrail(id: Int) {
+        viewModelScope.launch {
+            val timeElapsed = _uiState.value.timeElapsed
+            repository.saveRecordedTime(id, timeElapsed)
+            resetStopwatch()
+        }
     }
 
     fun getTrailById(id: Int) {
@@ -57,12 +92,16 @@ class TrailViewModel @Inject constructor(
 
     data class State(
         val trails: List<Trail>,
-        val selectedTrail: TrailEntity?
+        val selectedTrail: TrailEntity?,
+        val isRunning: Boolean,
+        val timeElapsed: Long
     ) {
         companion object {
             val DEFAULT = State(
                 trails = emptyList(),
-                selectedTrail = null
+                selectedTrail = null,
+                isRunning = false,
+                timeElapsed = 0
             )
         }
     }

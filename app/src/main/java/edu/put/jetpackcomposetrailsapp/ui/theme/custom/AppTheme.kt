@@ -20,13 +20,13 @@ import edu.put.jetpackcomposetrailsapp.ui.theme.Border
 private val darkColorScheme = AppColorScheme(
     listBackground = BackgroundList,
     border = Border,
-    element = Color.White
+    element = Color.White,
 )
 
 private val lightColorScheme = AppColorScheme(
     listBackground = BackgroundList,
     border = Border,
-    element = Color.White
+    element = Color.White,
 )
 
 private val typography = AppTypography(

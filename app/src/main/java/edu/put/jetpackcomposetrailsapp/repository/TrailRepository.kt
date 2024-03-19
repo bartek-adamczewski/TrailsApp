@@ -29,6 +29,12 @@ class TrailRepository @Inject constructor(
         trailDao.insertAll(*trails.toTypedArray())
     }
 
+    suspend fun saveRecordedTime(id: Int, recordedTime: Long) {
+        withContext(ioDispatcher) {
+            trailDao.updateRecordedTime(id, recordedTime)
+        }
+    }
+
     suspend fun initializeDatabaseIfNeeded() {
         if (trailDao.countTrails() == 0) {
             initializeDatabaseFromJson()

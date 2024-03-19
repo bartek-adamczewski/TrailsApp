@@ -1,61 +1,73 @@
 package edu.put.jetpackcomposetrailsapp.navigation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import edu.put.jetpackcomposetrailsapp.composable.DetailScreen
+import edu.put.jetpackcomposetrailsapp.composable.details.DetailScreen
 import edu.put.jetpackcomposetrailsapp.composable.list.RecyclerViewContent
 import edu.put.jetpackcomposetrailsapp.composable.list.RecyclerViewContentTablet
 import edu.put.jetpackcomposetrailsapp.composable.list.Trail
+import edu.put.jetpackcomposetrailsapp.composable.splash.SplashScreen
+import edu.put.jetpackcomposetrailsapp.ui.theme.custom.AppTheme
 import edu.put.jetpackcomposetrailsapp.viewmodel.TrailViewModel
 
 @Composable
 fun Navigation() {
-
     val navController = rememberNavController()
     val viewModel: TrailViewModel = hiltViewModel()
+    Box(modifier = Modifier.background(AppTheme.colorScheme.listBackground)) {
+        NavHost(navController = navController, startDestination = "splash_screen") {
+            composable("splash_screen") {
+                SplashScreen() {
+                    navController.navigate(Screen.ListScreen.route) {
+                        popUpTo(0)
+                    }
+                }
+            }
+            composable(
+                route = Screen.ListScreen.route
+            ) {
 
-    NavHost(navController = navController, startDestination = Screen.ListScreen.route) {
-        composable(
-            route = Screen.ListScreen.route
-        ) {
+                val trails = remember { mutableStateListOf<Trail>() }
+                LaunchedEffect(key1 = viewModel) {
+                    viewModel.uiState.collect { state ->
+                        trails.addAll(state.trails)
+                    }
+                }
 
-            val trails = remember { mutableStateListOf<Trail>() }
-            LaunchedEffect(key1 = viewModel) {
-                viewModel.uiState.collect { state ->
-                    trails.addAll(state.trails)
+                val windowInfo = rememberWindowInfo()
+
+                if (windowInfo.screenWidthInfo is WindowInfo.WindowType.Small) {
+                    RecyclerViewContent(navController = navController, trails = trails)
+                } else {
+                    RecyclerViewContentTablet(navController = navController, trails = trails)
                 }
             }
 
-            val windowInfo = rememberWindowInfo()
+            composable(
+                route = Screen.DetailsScreen.route,
+                arguments = listOf(navArgument("id") { type = NavType.StringType })
+            ) { backStackEntry ->
 
-            if(windowInfo.screenWidthInfo is WindowInfo.WindowType.Small) {
-                RecyclerViewContent(navController = navController, trails = trails)
-            }
-            else {
-                RecyclerViewContentTablet(navController = navController, trails = trails)
-            }
-        }
+                val trailId = backStackEntry.arguments?.getString("id")?.toInt()
+                trailId?.let { viewModel.getTrailById(it) }
+                val selectedTrailState =
+                    viewModel.uiState.collectAsState(TrailViewModel.State.DEFAULT).value.selectedTrail
 
-        composable(
-            route = Screen.DetailsScreen.route,
-            arguments = listOf(navArgument("id") { type = NavType.StringType })
-        ) { backStackEntry ->
-
-            val trailId = backStackEntry.arguments?.getString("id")?.toInt()
-            trailId?.let { viewModel.getTrailById(it) }
-            val selectedTrailState = viewModel.uiState.collectAsState(TrailViewModel.State.DEFAULT).value.selectedTrail
-
-            selectedTrailState?.let { selectedTrail ->
-                DetailScreen(navController = navController, selectedTrail = selectedTrail)
+                selectedTrailState?.let { selectedTrail ->
+                    DetailScreen(navController = navController, selectedTrail = selectedTrail)
+                }
             }
         }
     }

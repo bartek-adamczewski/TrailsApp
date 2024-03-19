@@ -20,4 +20,7 @@ interface TrailDao {
     @Query("SELECT COUNT(*) FROM TrailEntity")
     suspend fun countTrails(): Int
 
+    @Query("UPDATE TrailEntity SET recordedTime = :recordedTime WHERE id = :id")
+    suspend fun updateRecordedTime(id: Int, recordedTime: Long)
+
 }
