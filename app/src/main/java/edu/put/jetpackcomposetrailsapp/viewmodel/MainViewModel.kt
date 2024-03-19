@@ -10,6 +10,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
@@ -27,6 +29,13 @@ class TrailViewModel @Inject constructor(
     val uiState: Flow<State> = _uiState
     private val eventChannel = Channel<Event>(Channel.CONFLATED)
     val events = eventChannel.receiveAsFlow()
+
+    private val _bottomBarVisible = MutableStateFlow(false)
+    val bottomBarVisible: StateFlow<Boolean> = _bottomBarVisible.asStateFlow()
+
+    fun setBottomBarVisibility(visible: Boolean) {
+        _bottomBarVisible.value = visible
+    }
 
     init {
         viewModelScope.launch {
