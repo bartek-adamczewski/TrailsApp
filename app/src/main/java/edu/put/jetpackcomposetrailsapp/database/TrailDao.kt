@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TrailDao {
+
     @Query("SELECT * FROM TrailEntity")
     fun getAllTrails(): Flow<List<TrailEntity>>
 

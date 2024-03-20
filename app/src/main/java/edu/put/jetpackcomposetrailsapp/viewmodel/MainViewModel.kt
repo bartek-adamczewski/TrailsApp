@@ -41,17 +41,18 @@ class TrailViewModel @Inject constructor(
         viewModelScope.launch {
             repository.initializeDatabaseIfNeeded()
             repository.getTrails().collect { trails ->
-                val mappedTrails = trails.map { trail ->
+                val allTrails = trails.map { trail ->
                     Trail(
                         id = trail.id,
                         name = trail.name,
                         location = trail.location,
                         description = trail.shortDescription,
-                        imageId = trail.imageId
+                        imageId = trail.imageId,
+                        difficulty = trail.difficulty
                     )
                 }
                 _uiState.update { state ->
-                    state.copy(trails = mappedTrails)
+                    state.copy(trails = allTrails)
                 }
             }
         }

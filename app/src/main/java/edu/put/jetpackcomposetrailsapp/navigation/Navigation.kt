@@ -47,7 +47,9 @@ fun Navigation(navController: NavHostController) {
                 val trails = remember { mutableStateListOf<Trail>() }
                 LaunchedEffect(key1 = viewModel) {
                     viewModel.uiState.collect { state ->
-                        trails.addAll(state.trails)
+                        val beginnerTrails = state.trails.filter { it.difficulty == "beginner" }
+                        trails.clear()
+                        trails.addAll(beginnerTrails)
                     }
                 }
 
@@ -77,10 +79,26 @@ fun Navigation(navController: NavHostController) {
             composable(route = Screen.HomeScreen.route) {
                 HomeScreen()
             }
-            composable(route = Screen.TemporaryScreen.route) {
-                TemporaryScreen()
+            composable(route = Screen.ListScreen2.route) {
+                val trails = remember { mutableStateListOf<Trail>() }
+                LaunchedEffect(key1 = viewModel) {
+                    viewModel.uiState.collect { state ->
+                        val beginnerTrails = state.trails.filter { it.difficulty == "advanced" }
+                        trails.clear()
+                        trails.addAll(beginnerTrails)
+                    }
+                }
+
+                val windowInfo = rememberWindowInfo()
+
+                if (windowInfo.screenWidthInfo is WindowInfo.WindowType.Small) {
+                    RecyclerViewContent(navController = navController, trails = trails)
+                } else {
+                    RecyclerViewContentTablet(navController = navController, trails = trails)
+                }
             }
         }
     }
 }
+
 

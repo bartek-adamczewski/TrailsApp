@@ -5,5 +5,6 @@ data class Trail(
     val name: String,
     val location: String,
     val description: String,
-    val imageId: Int
+    val imageId: Int,
+    val difficulty: String
 )

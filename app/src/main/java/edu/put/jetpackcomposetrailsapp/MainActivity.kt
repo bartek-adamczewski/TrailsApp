@@ -106,7 +106,7 @@ class MainActivity : ComponentActivity() {
                         title = "Advanced",
                         selectedIcon = Icons.Filled.Warning,
                         unselectedIcon = Icons.Outlined.Warning,
-                        route = Screen.TemporaryScreen.route
+                        route = Screen.ListScreen2.route
                     )
 
                 )
