@@ -76,7 +76,7 @@ fun HomeScreen() {
             )
             Spacer(modifier = Modifier.height(20.dp))
             Text(
-                text = "Autorzy: Jan Kowalski, Anna Nowak",
+                text = "Autorzy: Bartosz Adamczewski, Kacper Leporowski",
                 fontSize = 14.sp
             )
         }
